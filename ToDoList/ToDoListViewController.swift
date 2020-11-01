@@ -38,17 +38,41 @@ class ToDoListViewController: UIViewController, UITableViewDataSource, UITableVi
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editTapped))
         
-        let testItem = TodoItemModel(name: "Test item", details: "test details", completionDate: Date())
+//        let testItem = TodoItemModel(name: "Test item", details: "test details", completionDate: Date())
+//
+//        self.toDoItems.append(testItem)
+//
+//        let testItem2 = TodoItemModel(name: "Test item 2", details: "test details", completionDate: Date())
+//        self.toDoItems.append(testItem2)
         
-        self.toDoItems.append(testItem)
-        
-        let testItem2 = TodoItemModel(name: "Test item 2", details: "test details", completionDate: Date())
-        self.toDoItems.append(testItem2)
+        NotificationCenter.default.addObserver(self, selector: #selector(addNewTask(_ :)), name: NSNotification.Name.init("com.todolistapp.addtask"), object: nil)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         tableView.setEditing(false, animated: false)
+    }
+    
+    @objc func addNewTask(_ notification: NSNotification) {
+        var todoItem: TodoItemModel!
+        
+        if let task = notification.object as? TodoItemModel {
+            todoItem = task
+        }
+        else if let taskDict = notification.userInfo as NSDictionary? {
+            guard let task = taskDict["Task"] as? TodoItemModel else {
+                return
+            }
+            todoItem = task
+        }
+        else {
+            return
+        }
+        toDoItems.append(todoItem)
+        
+        toDoItems.sort(by: {$0.completionDate < $1.completionDate})
+        
+        tableView.reloadData()
     }
     
     @objc func addTapped() {
@@ -105,6 +129,10 @@ class ToDoListViewController: UIViewController, UITableViewDataSource, UITableVi
             destinationVC.toDoIndex = toDoItem.0
             destinationVC.delegate = self
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.init("com.todolistapp.addtask"), object: nil)
     }
 
 }

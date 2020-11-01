@@ -54,14 +54,23 @@ class ToDoDetailsViewController: UIViewController {
         taskCompletionButton.backgroundColor = UIColor.gray
         taskCompletionButton.isEnabled = true
     }
-    
+    func enableButton()  {
+        taskCompletionButton.backgroundColor = UIColor.black
+        taskCompletionButton.isEnabled = false
+    }
    
     
     @IBAction func taskDidComplete(_ sender: Any) {
         
-        toDoItem.isComplete = true
+      
+        toDoItem.isComplete = !toDoItem.isComplete
         delegate?.update(task: toDoItem, index: toDoIndex)
-        disableButton()
+        if toDoItem.isComplete == true {
+            disableButton()
+        }
+        else {
+            enableButton()
+        }
         
     }
     
